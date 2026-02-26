@@ -703,4 +703,27 @@ canvas { display: block; }
     .shortcut-grid {
         grid-template-columns: 1fr;
     }
+
+    #sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+    }
+    #sidebar.open {
+        transform: translateX(0);
+    }
+
+    #sidebar-toggle {
+        left: 8px;
+        transition: left 0.25s ease;
+    }
+    #sidebar.open ~ #sidebar-toggle {
+        left: 228px;
+    }
+}
+
+/* Touch feedback */
+@media (hover: none) {
+    #hint {
+        display: none;
+    }
 }
