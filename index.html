@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Galaxy — Solar System</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ─── Loading Screen ─────────────────────────────────────────────────── -->
+    <div id="loading-screen">
+        <div class="loading-content">
+            <h1 class="loading-title">Solar System</h1>
+            <div class="loading-bar">
+                <div class="loading-bar-fill" id="loading-bar-fill"></div>
+            </div>
+            <div class="loading-text" id="loading-text">Initializing...</div>
+        </div>
+    </div>
+
+    <!-- ─── Sidebar ─────────────────────────────────────────────────────── -->
+    <div id="sidebar">
+        <div id="sidebar-header">
+            <h1>Solar System</h1>
+        </div>
+
+        <!-- View Section -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-header">View <span class="arrow">&#9660;</span></div>
+            <div class="sidebar-section-content">
+                <div class="ctrl-row">
+                    <span class="ctrl-label">Speed</span>
+                    <input type="range" id="speed" min="0" max="5" step="0.1" value="1">
+                    <span id="speed-val" style="font-size:11px;opacity:0.6;min-width:28px;">1.0x</span>
+                </div>
+                <div class="ctrl-row">
+                    <label><input type="checkbox" id="toggleOrbits" checked> Orbits</label>
+                </div>
+                <div class="ctrl-row">
+                    <label><input type="checkbox" id="toggleLabels" checked> Labels</label>
+                </div>
+                <div class="ctrl-row">
+                    <label><input type="checkbox" id="toggleTrails"> Trails</label>
+                </div>
+                <div class="ctrl-row">
+                    <label><input type="checkbox" id="toggleAtmospheres" checked> Atmospheres</label>
+                </div>
+                <div class="ctrl-row">
+                    <label><input type="checkbox" id="toggleBloom" checked> Bloom</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camera Section -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-header">Camera <span class="arrow">&#9660;</span></div>
+            <div class="sidebar-section-content">
+                <button class="sidebar-btn" id="resetCamera">Reset Camera</button>
+                <div class="ctrl-row">
+                    <label><input type="checkbox" id="toggleFollow"> Follow Mode</label>
+                </div>
+                <div class="ctrl-row">
+                    <span class="ctrl-label">Target</span>
+                    <select id="followTarget">
+                        <option value="">— Select —</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Time Section -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-header">Time <span class="arrow">&#9660;</span></div>
+            <div class="sidebar-section-content">
+                <div class="ctrl-row">
+                    <span class="ctrl-label">Speed</span>
+                    <input type="range" id="timeMultiplier" min="1" max="365" step="1" value="1">
+                    <span id="time-val" style="font-size:11px;opacity:0.6;min-width:28px;">1x</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tools Section -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-header">Tools <span class="arrow">&#9660;</span></div>
+            <div class="sidebar-section-content">
+                <button class="sidebar-btn" id="tourBtn">Guided Tour</button>
+                <button class="sidebar-btn" id="measureBtn">Measure Distance</button>
+                <button class="sidebar-btn" id="compareBtn">Compare Sizes</button>
+                <button class="sidebar-btn" id="fullscreenBtn">Fullscreen</button>
+                <button class="sidebar-btn" id="screenshotBtn">Screenshot</button>
+            </div>
+        </div>
+    </div>
+
+    <button id="sidebar-toggle">&#9664;</button>
+
+    <!-- ─── Search Bar ──────────────────────────────────────────────────── -->
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Search planets... (Ctrl+F)">
+        <div id="search-results"></div>
+    </div>
+
+    <!-- ─── Time HUD ────────────────────────────────────────────────────── -->
+    <div id="time-hud">
+        <div class="date" id="hud-date">Jan 1, 2025</div>
+        <div class="distance" id="hud-distance">0.00 AU</div>
+    </div>
+
+    <!-- ─── Hover Tooltip ───────────────────────────────────────────────── -->
+    <div id="hover-tooltip"></div>
+
+    <!-- ─── Planet Info (legacy bottom bar) ──────────────────────────────── -->
+    <div id="planet-info">
+        <h2 id="info-name"></h2>
+        <p id="info-details"></p>
+    </div>
+
+    <!-- ─── Detail Panel (right slide-in) ───────────────────────────────── -->
+    <div id="detail-panel">
+        <button id="detail-panel-close">&times;</button>
+        <div id="detail-header">
+            <h2 id="detail-name"></h2>
+            <div class="subtitle" id="detail-subtitle"></div>
+        </div>
+        <div class="detail-tabs">
+            <div class="detail-tab active" data-tab="overview">Overview</div>
+            <div class="detail-tab" data-tab="stats">Statistics</div>
+            <div class="detail-tab" data-tab="moons">Moons</div>
+        </div>
+        <div class="detail-content">
+            <div class="detail-tab-panel active" data-tab="overview">
+                <p id="detail-description"></p>
+                <div class="fun-fact" id="detail-funfact"></div>
+            </div>
+            <div class="detail-tab-panel" data-tab="stats">
+                <table class="stats-table">
+                    <tbody id="detail-stats-body"></tbody>
+                </table>
+            </div>
+            <div class="detail-tab-panel" data-tab="moons">
+                <div id="detail-moons"></div>
+            </div>
+        </div>
+        <div class="detail-actions">
+            <button class="detail-action-btn" id="detail-flyto">Fly To</button>
+            <button class="detail-action-btn" id="detail-follow">Follow</button>
+        </div>
+    </div>
+
+    <!-- ─── Tour Overlay ────────────────────────────────────────────────── -->
+    <div id="tour-overlay">
+        <div class="tour-card">
+            <div class="tour-header">
+                <h3 id="tour-title"></h3>
+                <span id="tour-count"></span>
+            </div>
+            <p id="tour-text"></p>
+            <div class="tour-controls">
+                <button id="tour-prev" class="tour-btn">Prev</button>
+                <button id="tour-next" class="tour-btn">Next</button>
+                <button id="tour-end" class="tour-btn tour-btn-end">End Tour</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Keyboard Shortcuts Overlay ──────────────────────────────────── -->
+    <div id="shortcuts-overlay">
+        <div class="shortcuts-card">
+            <h3>Keyboard Shortcuts</h3>
+            <div class="shortcut-grid">
+                <div class="shortcut-item"><kbd>0</kbd> Sun</div>
+                <div class="shortcut-item"><kbd>1</kbd> Mercury</div>
+                <div class="shortcut-item"><kbd>2</kbd> Venus</div>
+                <div class="shortcut-item"><kbd>3</kbd> Earth</div>
+                <div class="shortcut-item"><kbd>4</kbd> Mars</div>
+                <div class="shortcut-item"><kbd>5</kbd> Jupiter</div>
+                <div class="shortcut-item"><kbd>6</kbd> Saturn</div>
+                <div class="shortcut-item"><kbd>7</kbd> Uranus</div>
+                <div class="shortcut-item"><kbd>8</kbd> Neptune</div>
+                <div class="shortcut-item"><kbd>9</kbd> Pluto</div>
+                <div class="shortcut-item"><kbd>Space</kbd> Pause / Resume</div>
+                <div class="shortcut-item"><kbd>+/-</kbd> Speed up / down</div>
+                <div class="shortcut-item"><kbd>R</kbd> Reset Camera</div>
+                <div class="shortcut-item"><kbd>O</kbd> Toggle Orbits</div>
+                <div class="shortcut-item"><kbd>L</kbd> Toggle Labels</div>
+                <div class="shortcut-item"><kbd>T</kbd> Toggle Trails</div>
+                <div class="shortcut-item"><kbd>G</kbd> Guided Tour</div>
+                <div class="shortcut-item"><kbd>?</kbd> This Help</div>
+            </div>
+            <p class="shortcuts-hint">Press <kbd>?</kbd> or <kbd>Esc</kbd> to close</p>
+        </div>
+    </div>
+
+    <!-- ─── Minimap ─────────────────────────────────────────────────────── -->
+    <div id="minimap-container"></div>
+
+    <!-- ─── Comparison Overlay ──────────────────────────────────────────── -->
+    <div id="comparison-overlay">
+        <div id="comparison-title">Planet Size Comparison</div>
+        <button id="comparison-close">Close</button>
+        <div id="comparison-canvas-container"></div>
+    </div>
+
+    <!-- ─── Hint ────────────────────────────────────────────────────────── -->
+    <div id="hint">Scroll to zoom · Drag to orbit · Click a planet · Press <b>?</b> for shortcuts · <b>G</b> for guided tour · Zoom out to explore deep space</div>
+
+    <!-- ─── ES Module Import Map ──────────────────────────────────────── -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <!-- ─── Single Module Entry Point ─────────────────────────────────── -->
+    <script type="module" src="main.js"></script>
+</body>
+</html>
