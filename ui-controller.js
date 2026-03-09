@@ -17,6 +17,7 @@ const UIController = {
     _hudAccumulator: 0,
 
     init() {
+        this._loadPreferences();
         this._initSidebar();
         this._initViewControls();
         this._initCameraControls();
@@ -24,6 +25,42 @@ const UIController = {
         this._initToolControls();
         this._initSearch();
         this._initKeyboardShortcuts();
+        this._initNavigationLists();
+    },
+
+    _loadPreferences() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('mygalaxy-prefs') || '{}');
+            if (saved.orbitsVisible !== undefined) this.orbitsVisible = saved.orbitsVisible;
+            if (saved.labelsVisible !== undefined) this.labelsVisible = saved.labelsVisible;
+            if (saved.trailsVisible !== undefined) this.trailsVisible = saved.trailsVisible;
+            if (saved.atmospheresVisible !== undefined) this.atmospheresVisible = saved.atmospheresVisible;
+            if (saved.bloomEnabled !== undefined) this.bloomEnabled = saved.bloomEnabled;
+            if (saved.speed !== undefined) this.speed = saved.speed;
+            if (saved.timeMultiplier !== undefined) this.timeMultiplier = saved.timeMultiplier;
+            if (saved.sidebarCollapsed) {
+                const sidebar = document.getElementById('sidebar');
+                const toggle = document.getElementById('sidebar-toggle');
+                if (sidebar) sidebar.classList.add('collapsed');
+                if (toggle) toggle.textContent = '\u25B6';
+            }
+        } catch (e) { /* ignore */ }
+    },
+
+    _savePreferences() {
+        try {
+            const sidebar = document.getElementById('sidebar');
+            localStorage.setItem('mygalaxy-prefs', JSON.stringify({
+                orbitsVisible: this.orbitsVisible,
+                labelsVisible: this.labelsVisible,
+                trailsVisible: this.trailsVisible,
+                atmospheresVisible: this.atmospheresVisible,
+                bloomEnabled: this.bloomEnabled,
+                speed: this.speed,
+                timeMultiplier: this.timeMultiplier,
+                sidebarCollapsed: sidebar ? sidebar.classList.contains('collapsed') : false,
+            }));
+        } catch (e) { /* ignore */ }
     },
 
     _initSidebar() {
@@ -33,6 +70,7 @@ const UIController = {
             toggle.addEventListener('click', () => {
                 sidebar.classList.toggle('collapsed');
                 toggle.textContent = sidebar.classList.contains('collapsed') ? '\u25B6' : '\u25C0';
+                this._savePreferences();
             });
         }
         document.querySelectorAll('.sidebar-section-header').forEach(header => {
@@ -46,48 +84,61 @@ const UIController = {
         const speedSlider = document.getElementById('speed');
         const speedVal = document.getElementById('speed-val');
         if (speedSlider) {
+            speedSlider.value = this.speed;
+            if (speedVal) speedVal.textContent = this.speed.toFixed(1) + 'x';
             speedSlider.addEventListener('input', () => {
                 this.speed = parseFloat(speedSlider.value);
                 if (speedVal) speedVal.textContent = this.speed.toFixed(1) + 'x';
+                this._savePreferences();
             });
         }
 
         const toggleOrbits = document.getElementById('toggleOrbits');
         if (toggleOrbits) {
+            toggleOrbits.checked = this.orbitsVisible;
             toggleOrbits.addEventListener('change', () => {
                 this.orbitsVisible = toggleOrbits.checked;
                 if (state.celestialBodies) state.celestialBodies.setOrbitsVisible(this.orbitsVisible);
+                this._savePreferences();
             });
         }
 
         const toggleLabels = document.getElementById('toggleLabels');
         if (toggleLabels) {
+            toggleLabels.checked = this.labelsVisible;
             toggleLabels.addEventListener('change', () => {
                 this.labelsVisible = toggleLabels.checked;
+                this._savePreferences();
             });
         }
 
         const toggleTrails = document.getElementById('toggleTrails');
         if (toggleTrails) {
+            toggleTrails.checked = this.trailsVisible;
             toggleTrails.addEventListener('change', () => {
                 this.trailsVisible = toggleTrails.checked;
                 if (state.trailRenderer) state.trailRenderer.setVisible(this.trailsVisible);
+                this._savePreferences();
             });
         }
 
         const toggleAtmo = document.getElementById('toggleAtmospheres');
         if (toggleAtmo) {
+            toggleAtmo.checked = this.atmospheresVisible;
             toggleAtmo.addEventListener('change', () => {
                 this.atmospheresVisible = toggleAtmo.checked;
                 if (state.effects) state.effects.setAtmospheresVisible(this.atmospheresVisible);
+                this._savePreferences();
             });
         }
 
         const toggleBloom = document.getElementById('toggleBloom');
         if (toggleBloom) {
+            toggleBloom.checked = this.bloomEnabled;
             toggleBloom.addEventListener('change', () => {
                 this.bloomEnabled = toggleBloom.checked;
                 if (state.postProcessing) state.postProcessing.setBloom(this.bloomEnabled);
+                this._savePreferences();
             });
         }
     },
@@ -138,9 +189,12 @@ const UIController = {
         const timeSlider = document.getElementById('timeMultiplier');
         const timeVal = document.getElementById('time-val');
         if (timeSlider) {
+            timeSlider.value = this.timeMultiplier;
+            if (timeVal) timeVal.textContent = this.timeMultiplier.toFixed(0) + 'x';
             timeSlider.addEventListener('input', () => {
                 this.timeMultiplier = parseFloat(timeSlider.value);
                 if (timeVal) timeVal.textContent = this.timeMultiplier.toFixed(0) + 'x';
+                this._savePreferences();
             });
         }
     },
@@ -336,6 +390,42 @@ const UIController = {
                 }
             }
         });
+    },
+
+    _initNavigationLists() {
+        const dwarfNames = ['Pluto', 'Ceres', 'Eris', 'Haumea', 'Makemake'];
+        const cometNames = ["Halley's Comet", 'Hale-Bopp', 'Encke'];
+
+        const toolsSection = document.querySelector('#sidebar .sidebar-section:last-child');
+        if (!toolsSection) return;
+
+        const createSection = (title, names) => {
+            const section = document.createElement('div');
+            section.className = 'sidebar-section';
+            section.innerHTML = `<div class="sidebar-section-header">${title} <span class="arrow">&#9660;</span></div>`;
+            const content = document.createElement('div');
+            content.className = 'sidebar-section-content';
+            names.forEach(name => {
+                const btn = document.createElement('button');
+                btn.className = 'sidebar-btn';
+                btn.textContent = name;
+                btn.addEventListener('click', () => {
+                    if (state.cameraController) state.cameraController.flyToByName(name);
+                });
+                content.appendChild(btn);
+            });
+            section.appendChild(content);
+            section.querySelector('.sidebar-section-header').addEventListener('click', () => {
+                section.classList.toggle('collapsed');
+            });
+            return section;
+        };
+
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            sidebar.insertBefore(createSection('Dwarf Planets', dwarfNames), toolsSection);
+            sidebar.insertBefore(createSection('Comets', cometNames), toolsSection);
+        }
     },
 
     _syncSpeedSlider() {
