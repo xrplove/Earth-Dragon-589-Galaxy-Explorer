@@ -301,12 +301,13 @@ export function createSun() {
 export function createLighting() {
     const scene = state.scene;
 
-    const sunLight = new THREE.PointLight(0xfff5e0, 2.5, 2000);
+    const sunLight = new THREE.PointLight(0xfff5e0, 3.0, 0); // distance=0 means infinite range
     sunLight.castShadow = true;
     scene.add(sunLight);
     state.sunLight = sunLight;
 
-    const ambientLight = new THREE.AmbientLight(0x111122, 0.25);
+    // Brighter ambient so shadowed sides aren't pitch black
+    const ambientLight = new THREE.AmbientLight(0x334466, 0.6);
     scene.add(ambientLight);
 }
 

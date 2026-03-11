@@ -14,7 +14,7 @@ const UIController = {
     paused: false,
     perfVisible: false,
 
-    simDate: new Date(2025, 0, 1),
+    simDate: new Date(),
     timeMultiplier: 1,
     _hudAccumulator: 0,
     _fpsFrames: 0,
