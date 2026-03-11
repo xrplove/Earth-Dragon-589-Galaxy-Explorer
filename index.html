@@ -54,6 +54,9 @@
                 <div class="ctrl-row">
                     <label><input type="checkbox" id="toggleBloom" checked> Bloom</label>
                 </div>
+                <div class="ctrl-row">
+                    <label><input type="checkbox" id="toggleSound"> Sound</label>
+                </div>
             </div>
         </div>
 
@@ -192,6 +195,7 @@
                 <div class="shortcut-item"><kbd>L</kbd> Toggle Labels</div>
                 <div class="shortcut-item"><kbd>T</kbd> Toggle Trails</div>
                 <div class="shortcut-item"><kbd>G</kbd> Guided Tour</div>
+                <div class="shortcut-item"><kbd>F</kbd> FPS / Performance</div>
                 <div class="shortcut-item"><kbd>?</kbd> This Help</div>
             </div>
             <p class="shortcuts-hint">Press <kbd>?</kbd> or <kbd>Esc</kbd> to close</p>
@@ -206,6 +210,32 @@
         <div id="comparison-title">Planet Size Comparison</div>
         <button id="comparison-close">Close</button>
         <div id="comparison-canvas-container"></div>
+    </div>
+
+    <!-- ─── Performance Stats ──────────────────────────────────────────── -->
+    <div id="perf-stats">
+        <div class="perf-row"><span class="perf-label">FPS</span><span id="perf-fps">0</span></div>
+        <div class="perf-row"><span class="perf-label">Draw</span><span id="perf-draws">0</span></div>
+        <div class="perf-row"><span class="perf-label">Tris</span><span id="perf-tris">0</span></div>
+        <div class="perf-row"><span class="perf-label">Geom</span><span id="perf-geom">0</span></div>
+    </div>
+
+    <!-- ─── Measurement Result Modal ─────────────────────────────────── -->
+    <div id="measure-result">
+        <div class="measure-card">
+            <div class="measure-header" id="measure-title">Distance</div>
+            <div class="measure-bodies">
+                <span id="measure-from"></span>
+                <span class="measure-arrow">&rarr;</span>
+                <span id="measure-to"></span>
+            </div>
+            <div class="measure-values">
+                <div class="measure-val"><span class="measure-num" id="measure-au"></span><span class="measure-unit">AU</span></div>
+                <div class="measure-val"><span class="measure-num" id="measure-km"></span><span class="measure-unit">million km</span></div>
+                <div class="measure-val"><span class="measure-num" id="measure-light"></span><span class="measure-unit">light-minutes</span></div>
+            </div>
+            <button id="measure-close">Close</button>
+        </div>
     </div>
 
     <!-- ─── Hint ────────────────────────────────────────────────────────── -->

@@ -2,6 +2,7 @@
 // Sidebar, search, time controls, fullscreen, screenshot, keyboard shortcuts
 
 import state from './state.js';
+import Sound from './sound.js';
 
 const UIController = {
     speed: 1,
@@ -11,10 +12,13 @@ const UIController = {
     atmospheresVisible: true,
     bloomEnabled: true,
     paused: false,
+    perfVisible: false,
 
     simDate: new Date(2025, 0, 1),
     timeMultiplier: 1,
     _hudAccumulator: 0,
+    _fpsFrames: 0,
+    _fpsLastTime: performance.now(),
 
     init() {
         this._loadPreferences();
@@ -139,6 +143,13 @@ const UIController = {
                 this.bloomEnabled = toggleBloom.checked;
                 if (state.postProcessing) state.postProcessing.setBloom(this.bloomEnabled);
                 this._savePreferences();
+            });
+        }
+
+        const toggleSound = document.getElementById('toggleSound');
+        if (toggleSound) {
+            toggleSound.addEventListener('change', () => {
+                Sound.setEnabled(toggleSound.checked);
             });
         }
     },
@@ -382,6 +393,14 @@ const UIController = {
                     if (state.guidedTour) state.guidedTour.start();
                     break;
 
+                case 'f':
+                case 'F': {
+                    this.perfVisible = !this.perfVisible;
+                    const perfEl = document.getElementById('perf-stats');
+                    if (perfEl) perfEl.classList.toggle('visible', this.perfVisible);
+                    break;
+                }
+
                 case '?':
                 case '/': {
                     const overlay = document.getElementById('shortcuts-overlay');
@@ -436,6 +455,21 @@ const UIController = {
     },
 
     update(delta) {
+        // FPS counter (always counts, only renders when visible)
+        this._fpsFrames++;
+        const now = performance.now();
+        if (now - this._fpsLastTime >= 1000) {
+            if (this.perfVisible && state.renderer) {
+                const info = state.renderer.info;
+                document.getElementById('perf-fps').textContent = this._fpsFrames;
+                document.getElementById('perf-draws').textContent = info.render.calls;
+                document.getElementById('perf-tris').textContent = info.render.triangles.toLocaleString();
+                document.getElementById('perf-geom').textContent = info.memory.geometries;
+            }
+            this._fpsFrames = 0;
+            this._fpsLastTime = now;
+        }
+
         if (this.paused) return;
 
         const daysPerSecond = this.timeMultiplier * delta;

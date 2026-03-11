@@ -658,6 +658,114 @@ canvas { display: block; }
     font-weight: 600;
 }
 
+/* ─── Performance Stats ────────────────────────────────────────────────── */
+#perf-stats {
+    position: fixed;
+    top: 50px;
+    right: 20px;
+    z-index: 15;
+    background: rgba(5, 8, 18, 0.75);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    display: none;
+    min-width: 110px;
+}
+#perf-stats.visible { display: block; }
+.perf-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 1px 0;
+}
+.perf-label { opacity: 0.45; }
+.perf-row span:last-child { opacity: 0.85; text-align: right; }
+
+/* ─── Measurement Result Modal ─────────────────────────────────────────── */
+#measure-result {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 40;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(2px);
+}
+#measure-result.visible { display: flex; }
+.measure-card {
+    background: rgba(5, 8, 18, 0.94);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(74, 158, 255, 0.25);
+    border-radius: 14px;
+    padding: 28px 36px;
+    text-align: center;
+    min-width: 320px;
+    animation: measureFadeIn 0.3s ease;
+}
+@keyframes measureFadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+.measure-header {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.4;
+    margin-bottom: 12px;
+}
+.measure-bodies {
+    font-size: 18px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+.measure-arrow { opacity: 0.3; font-size: 14px; }
+.measure-values {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.measure-val {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+.measure-num {
+    font-size: 22px;
+    font-weight: 300;
+    color: #7bb8ff;
+}
+.measure-unit {
+    font-size: 10px;
+    opacity: 0.4;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+#measure-close {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6);
+    padding: 6px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+#measure-close:hover { background: rgba(255,255,255,0.12); }
+
 /* ─── Scrollbar ─────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
