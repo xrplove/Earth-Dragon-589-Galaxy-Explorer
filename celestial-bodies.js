@@ -5,47 +5,11 @@
 import * as THREE from 'three';
 import state from './state.js';
 import { PlanetData } from './planet-data.js';
+import { solveKepler, orbitalPosition } from './orbital-math.js';
 
 const _tempVec3 = new THREE.Vector3();
 const _tempVec3b = new THREE.Vector3();
 let _frameCount = 0;
-
-// ─── Kepler Equation Solver (Newton-Raphson) ────────────────────────────────
-function solveKepler(M, e, tolerance) {
-    // Better initial guess for high eccentricities
-    let E = e > 0.8 ? Math.PI : M;
-    for (let i = 0; i < 30; i++) {
-        const dE = (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
-        E -= dE;
-        if (Math.abs(dE) < tolerance) break;
-    }
-    return E;
-}
-
-// ─── Compute 3D position from orbital elements ─────────────────────────────
-function orbitalPosition(meanAnomaly, a, e, inclination, ascendingNode) {
-    const E = solveKepler(meanAnomaly, e, 1e-6);
-    const b = a * Math.sqrt(1 - e * e);
-
-    // Position in orbit plane
-    const xOrb = a * (Math.cos(E) - e);
-    const yOrb = b * Math.sin(E);
-
-    // Apply ascending node rotation (around Y)
-    const cosO = Math.cos(ascendingNode);
-    const sinO = Math.sin(ascendingNode);
-    const xRot = xOrb * cosO - yOrb * sinO;
-    const zRot = xOrb * sinO + yOrb * cosO;
-
-    // Apply inclination (tilt orbit plane)
-    const cosI = Math.cos(inclination);
-    const sinI = Math.sin(inclination);
-    const x = xRot;
-    const y = zRot * sinI;
-    const z = zRot * cosI;
-
-    return { x, y, z };
-}
 
 // ─── Draw elliptical orbit line with inclination ────────────────────────────
 function createOrbitLine(a, e, inclination, ascendingNode, color, opacity) {
@@ -79,6 +43,19 @@ function createOrbitLine(a, e, inclination, ascendingNode, color, opacity) {
         opacity: opacity || 0.1
     });
     return new THREE.Line(geom, mat);
+}
+
+// ─── Safe texture loader with fallback ──────────────────────────────────────
+function loadTexture(loader, path, fallbackColor) {
+    const tex = loader.load(
+        path,
+        undefined,
+        undefined,
+        () => {
+            console.warn(`Texture not found: ${path} — using fallback color`);
+        }
+    );
+    return tex;
 }
 
 const CelestialBodies = {
