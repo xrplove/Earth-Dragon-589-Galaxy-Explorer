@@ -164,6 +164,8 @@ export function setupScene() {
     renderer.shadowMap.enabled = true;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
+    renderer.domElement.setAttribute('role', 'img');
+    renderer.domElement.setAttribute('aria-label', 'Interactive 3D solar system — click planets to explore, scroll to zoom, drag to orbit');
     document.body.appendChild(renderer.domElement);
     state.renderer = renderer;
 
@@ -184,6 +186,15 @@ export function setupScene() {
         camera.aspect = innerWidth / innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(innerWidth, innerHeight);
+        // Update minimap renderer if initialized
+        if (state.minimap && state.minimap.renderer) {
+            const container = document.getElementById('minimap-container');
+            if (container) {
+                const w = container.clientWidth;
+                const h = container.clientHeight;
+                state.minimap.renderer.setSize(w, h);
+            }
+        }
     });
 
     // If nothing was queued to load, dismiss the loading screen immediately

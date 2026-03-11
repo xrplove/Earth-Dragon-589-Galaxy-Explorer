@@ -16,6 +16,24 @@ import Minimap from './minimap.js';
 import ComparisonMode from './comparison-mode.js';
 import DeepSpace from './deep-space.js';
 import GuidedTour from './guided-tour.js';
+import Sound from './sound.js';
+
+// ─── WebGL Detection ─────────────────────────────────────────────────────────
+{
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+    if (!gl) {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+            loadingScreen.querySelector('.loading-title').textContent = 'WebGL Required';
+            loadingScreen.querySelector('.loading-text').textContent =
+                'Your browser or device does not support WebGL. Please try Chrome, Firefox, or Edge.';
+            const bar = loadingScreen.querySelector('.loading-bar');
+            if (bar) bar.style.display = 'none';
+        }
+        throw new Error('WebGL not supported');
+    }
+}
 
 // ─── Scene Setup ─────────────────────────────────────────────────────────────
 setupScene();
@@ -36,6 +54,7 @@ state.minimap = Minimap;
 state.comparisonMode = ComparisonMode;
 state.deepSpace = DeepSpace;
 state.guidedTour = GuidedTour;
+state.sound = Sound;
 
 // ─── Initialize All Modules (order matters) ──────────────────────────────────
 Effects.init();
@@ -48,6 +67,7 @@ Minimap.init();
 ComparisonMode.init();
 TrailRenderer.init();
 DeepSpace.init();
+Sound.init();
 
 // ─── Animation Loop ──────────────────────────────────────────────────────────
 let elapsed = 0;
