@@ -3,6 +3,8 @@
 
 import * as THREE from 'three';
 import state from './state.js';
+import { easeInOutCubic } from './orbital-math.js';
+import Sound from './sound.js';
 
 const _tempVec3 = new THREE.Vector3();
 const _raycaster = new THREE.Raycaster();
@@ -51,6 +53,7 @@ const CameraController = {
             if (intersects.length > 0) {
                 const obj = intersects[0].object;
                 if (obj.userData.name) {
+                    Sound.playClick();
                     if (state.infoPanel) state.infoPanel.show(obj.userData);
                     this.flyTo(obj);
                 }
@@ -134,8 +137,10 @@ const CameraController = {
                     const p1 = this.measurePoints[0];
                     const p2 = this.measurePoints[1];
                     const dist = p1.position.distanceTo(p2.position);
-                    const au = (dist / 54).toFixed(2); // 54 units = 1 AU (Earth's distance)
-                    alert(`Distance: ${p1.name} → ${p2.name}\n${au} AU (${dist.toFixed(1)} units)`);
+                    const au = dist / 54; // 54 units = 1 AU (Earth's distance)
+                    const km = au * 149.598; // million km
+                    const lightMin = au * 8.317; // light-minutes per AU
+                    this._showMeasureResult(p1.name, p2.name, au, km, lightMin);
                     this.measurePoints = [];
                     this.toggleMeasureMode(false);
                 }
@@ -151,6 +156,28 @@ const CameraController = {
             btn.classList.toggle('active', this.measureMode);
             btn.textContent = this.measureMode ? 'Click 2 bodies...' : 'Measure Distance';
         }
+    },
+
+    _showMeasureResult(fromName, toName, au, km, lightMin) {
+        const modal = document.getElementById('measure-result');
+        if (!modal) return;
+        document.getElementById('measure-from').textContent = fromName;
+        document.getElementById('measure-to').textContent = toName;
+        document.getElementById('measure-au').textContent = au.toFixed(2);
+        document.getElementById('measure-km').textContent = km.toFixed(1);
+        document.getElementById('measure-light').textContent = lightMin.toFixed(1);
+        modal.classList.add('visible');
+
+        const closeBtn = document.getElementById('measure-close');
+        const close = () => {
+            modal.classList.remove('visible');
+            closeBtn.removeEventListener('click', close);
+        };
+        if (closeBtn) closeBtn.addEventListener('click', close);
+        // Also close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) close();
+        }, { once: true });
     },
 
     flyTo(targetMesh) {
@@ -173,6 +200,7 @@ const CameraController = {
         this.flyEndTarget = targetPos.clone();
         this.flyProgress = 0;
         this.flying = true;
+        Sound.playFlyTo();
 
         state.controls.enabled = false;
     },
@@ -201,10 +229,6 @@ const CameraController = {
         state.controls.update();
     },
 
-    _easeInOutCubic(t) {
-        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    },
-
     update(delta) {
         // Fly-to animation
         if (this.flying) {
@@ -215,7 +239,7 @@ const CameraController = {
                 state.controls.enabled = true;
             }
 
-            const t = this._easeInOutCubic(Math.min(this.flyProgress, 1));
+            const t = easeInOutCubic(Math.min(this.flyProgress, 1));
             state.camera.position.lerpVectors(this.flyStart, this.flyEnd, t);
             state.controls.target.lerpVectors(this.flyStartTarget, this.flyEndTarget, t);
             state.controls.update();
