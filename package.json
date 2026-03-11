@@ -1,0 +1,31 @@
+{
+  "name": "mygalaxy",
+  "version": "1.0.0",
+  "description": "Interactive 3D solar system explorer built with Three.js",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "solar-system",
+    "three.js",
+    "3d",
+    "space",
+    "planets",
+    "kepler",
+    "webgl",
+    "interactive"
+  ],
+  "author": "Isaac Alkhabaz",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ialkyyyy/MyGalaxy.git"
+  },
+  "homepage": "https://galaxy.alkhabaz.dev",
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  }
+}
